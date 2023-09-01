@@ -1,0 +1,5 @@
+node_modules
+secrets.json
+yarn-error.log
+hardhat.config.ts
+cache/
