@@ -36,24 +36,4 @@ contract Gap is Initializable, OwnableUpgradeable {
             totalUids[i] = eas.multiAttest(requests);
         }
     }
-
-/*
-
-    function multiSequentialAttest(MultiAttestationRequest[] calldata multiRequests) external {
-        bytes32[][] memory totalUids = new bytes32[][](multiRequests.length);
-
-        for (uint256 i = 0; i < multiRequests.length; i++) {
-            MultiAttestationRequest[] memory requests = new MultiAttestationRequest[](1);
-            requests[0] = multiRequests[i];
-            if (i > 0) {
-                for(uint256 j = 0; j < requests[0].data.length; j++) {
-                    AttestationRequestData memory data = requests[0].data[j];
-                    data.refUID = totalUids[i-1][0];
-                    requests[0].data[j] = data;
-                }
-            }
-            totalUids[i] = eas.multiAttest(requests);
-        }
-    }
-    */
 }
