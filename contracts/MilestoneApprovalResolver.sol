@@ -22,7 +22,9 @@ contract MilestoneApprovalResolver is
     bytes32 private completedHash = keccak256(abi.encodePacked("completed"));
     bytes32 private rejectedHash = keccak256(abi.encodePacked("rejected"));
 
-    constructor(IEAS easRef, ICommunityResolver resolver) SchemaResolver(easRef) {
+    constructor(IEAS easRef, ICommunityResolver resolver)
+        SchemaResolver(easRef)
+    {
         eas = easRef;
         communityResolver = resolver;
         _owner = msg.sender;
@@ -38,10 +40,14 @@ contract MilestoneApprovalResolver is
     }
 
     /**
-     * Calls community resolver whitelist to check if address is 
+     * Calls community resolver whitelist to check if address is
      * a community admin
      */
-    function validateCommunityAdmin(bytes32 communityUID, address addr) private view returns(bool) {
+    function isCommunityAdmin(bytes32 communityUID, address addr)
+        private
+        view
+        returns (bool)
+    {
         return communityResolver.isAdmin(communityUID, addr);
     }
 
@@ -59,7 +65,9 @@ contract MilestoneApprovalResolver is
         typeHash = keccak256(abi.encodePacked(type_));
 
         if (
-            typeHash != approvedHash && typeHash != completedHash && typeHash != rejectedHash
+            typeHash != approvedHash &&
+            typeHash != completedHash &&
+            typeHash != rejectedHash
         ) {
             revert("Invalid approval type.");
         }
@@ -93,35 +101,33 @@ contract MilestoneApprovalResolver is
             "Invalid grant reference on milestone"
         );
 
+        Attestation memory grant = eas.getAttestation(milestone.refUID);
+        require(grant.uid != bytes32(0), "Invalid grant reference");
+        bytes32 communityUID = getGrantCommunityUID(grant.data);
+
+        bool communityAdmin = isCommunityAdmin(
+            communityUID,
+            attestation.attester
+        );
+
         if (typeHash == completedHash) {
             require(
                 milestone.attester == attestation.attester ||
-                    milestone.attester == _owner,
-                "Not owner"
+                    milestone.recipient == attestation.attester ||
+                    communityAdmin,
+                "Not admin"
             );
         } else if (typeHash == rejectedHash || typeHash == approvedHash) {
-            Attestation memory grant = eas.getAttestation(milestone.refUID);
-            require(grant.uid != bytes32(0), "Invalid grant reference");
-
-            bytes32 communityUID = getGrantCommunityUID(grant.data);
+            require(communityAdmin, "Not owner");
             Attestation memory community = eas.getAttestation(communityUID);
-
             require(community.uid != bytes32(0), "Invalid community reference");
 
-            validateCommunityAdmin(attestation.refUID, attestation.attester);
-
-            require(
-                community.attester == attestation.attester ||
-                    community.recipient == attestation.attester ||
-                    attestation.attester == _owner,
-                "Not owner"
-            );
         }
         return true;
     }
 
     function onRevoke(
-        Attestation calldata /*attestation*/,
+        Attestation calldata, /*attestation*/
         uint256 /*value*/
     ) internal pure override returns (bool) {
         return true;
