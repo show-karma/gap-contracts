@@ -55,10 +55,10 @@ contract Gap is Initializable, OwnableUpgradeable {
         // Checks if every revoke request belongs to the sender
         // The sender can be either the attester or the recipient.
         for (uint256 i = 0; i < multiRequests.length; i++) {
-            MultiRevocationRequest memory chunk = multiRequests[i];
-            for (uint256 j = 0; j < chunk.data.length; j++) {
+            MultiRevocationRequest memory request = multiRequests[i];
+            for (uint256 j = 0; j < request.data.length; j++) {
                 Attestation memory target = eas.getAttestation(
-                    chunk.data[j].uid
+                    request.data[j].uid
                 );
 
                 require(
