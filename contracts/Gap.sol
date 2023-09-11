@@ -23,12 +23,10 @@ contract Gap is Initializable, OwnableUpgradeable {
     /// 
     /// Verify if msg.sender owns the referenced attestation
     /// 
-    function canAttestToRef(bytes32 uid) public view {
+    function validateCanAttestToRef(bytes32 uid) private view {
         Attestation memory ref = eas.getAttestation(uid);
         require(
             ref.attester == msg.sender || ref.recipient == msg.sender,
-            /* || msg.sender == owner() */
-            // ↑ Should owner be able to revoke any attestation?
             "Not owner."
         );
     }
@@ -36,13 +34,13 @@ contract Gap is Initializable, OwnableUpgradeable {
     ///
     /// Verify if msg.sender owns the set of attestations
     ///
-    function canAttestToRefs(AttestationRequestData[] memory datas)
+    function validateCanAttestToRefs(AttestationRequestData[] memory datas)
         private
         view
     {
         for (uint256 j = 0; j < datas.length; j++) {
             if (datas[j].refUID != bytes32(0)) {
-                canAttestToRef(datas[j].refUID);
+                validateCanAttestToRef(datas[j].refUID);
             }
         }
     }
@@ -66,8 +64,6 @@ contract Gap is Initializable, OwnableUpgradeable {
                 require(
                     target.attester == msg.sender ||
                         target.recipient == msg.sender,
-                    /* || msg.sender == owner()*/
-                    // ↑ Should owner be able to revoke any attestation?
                     "Not owner."
                 );
             }
@@ -80,9 +76,9 @@ contract Gap is Initializable, OwnableUpgradeable {
         payable
         returns (bytes32)
     {
-        if (request.data.refUID != bytes32(0)) {
-            canAttestToRef(request.data.refUID);
-        }
+        AttestationRequestData[] memory requestData = new AttestationRequestData[](1);
+        requestData[0] = request.data;
+        validateCanAttestToRefs(requestData);
 
         return eas.attest(request);
     }
@@ -97,7 +93,7 @@ contract Gap is Initializable, OwnableUpgradeable {
                 .multiRequest;
             // If first item reference an attestation, checks if sender
             // is owner or attester of that attestation.
-            canAttestToRefs(request.data);
+            validateCanAttestToRefs(request.data);
             // Updates the upcoming attestation reference uids.
             if (i > 0) {
                 for (uint256 j = 0; j < request.data.length; j++) {
@@ -106,9 +102,6 @@ contract Gap is Initializable, OwnableUpgradeable {
                     if (data.refUID == bytes32(0)) {
                         data.refUID = totalUids[requestNodes[i].refIdx][0];
                         request.data[j] = data;
-                    } else {
-                        // otherwise check if is owner of the referred attestation
-                        canAttestToRef(data.refUID);
                     }
                 }
             }

@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 
 import {SchemaResolver} from "@ethereum-attestation-service/eas-contracts/contracts/resolver/SchemaResolver.sol";
 import {IEAS} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
+import {ICommunityResolver} from "./ICommunityResolver.sol";
 import {Attestation} from "@ethereum-attestation-service/eas-contracts/contracts/Common.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -15,15 +16,33 @@ contract MilestoneApprovalResolver is
 {
     address private _owner;
     IEAS private eas;
+    ICommunityResolver communityResolver;
 
     bytes32 private approvedHash = keccak256(abi.encodePacked("approved"));
     bytes32 private completedHash = keccak256(abi.encodePacked("completed"));
     bytes32 private rejectedHash = keccak256(abi.encodePacked("rejected"));
 
-    constructor(IEAS easRef) SchemaResolver(easRef) {
+    constructor(IEAS easRef, ICommunityResolver resolver) SchemaResolver(easRef) {
         eas = easRef;
+        communityResolver = resolver;
         _owner = msg.sender;
         _disableInitializers();
+    }
+
+    /**
+     * Set the community resolver to check for admin privileges
+     */
+    function changeCommunityResolver(ICommunityResolver resolver) external {
+        require(msg.sender == _owner, "Not owner.");
+        communityResolver = resolver;
+    }
+
+    /**
+     * Calls community resolver whitelist to check if address is 
+     * a community admin
+     */
+    function validateCommunityAdmin(bytes32 communityUID, address addr) private view returns(bool) {
+        return communityResolver.isAdmin(communityUID, addr);
     }
 
     /**
@@ -88,6 +107,9 @@ contract MilestoneApprovalResolver is
             Attestation memory community = eas.getAttestation(communityUID);
 
             require(community.uid != bytes32(0), "Invalid community reference");
+
+            validateCommunityAdmin(attestation.refUID, attestation.attester);
+
             require(
                 community.attester == attestation.attester ||
                     community.recipient == attestation.attester ||

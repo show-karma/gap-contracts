@@ -47,5 +47,4 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     ) internal view override returns (bool) {
         return attestation.attester == msg.sender;
     }
-
 }
