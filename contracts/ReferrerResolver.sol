@@ -15,12 +15,9 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     constructor(IEAS easRef) SchemaResolver(easRef) {
         eas = easRef;
         _owner = msg.sender;
-      _disableInitializers();
+        _disableInitializers();
     }
 
-    /**
-     * This is a bottom up event, called from the attest contract
-     */
     function onAttest(
         Attestation calldata attestation,
         uint256 /*value*/
@@ -36,5 +33,12 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
             );
         }
         return true;
+    }
+
+    function onRevoke(
+        Attestation calldata attestation,
+        uint256 /*value*/
+    ) internal view override returns (bool) {
+        return msg.sender == attestation.attester;
     }
 }

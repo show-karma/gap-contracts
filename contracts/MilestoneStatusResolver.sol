@@ -121,8 +121,14 @@ contract MilestoneStatusResolver is
             require(communityAdmin, "Not owner");
             Attestation memory community = eas.getAttestation(communityUID);
             require(community.uid != bytes32(0), "Invalid community reference");
-
         }
         return true;
+    }
+
+    function onRevoke(
+        Attestation calldata attestation,
+        uint256 /*value*/
+    ) internal view override returns (bool) {
+        return msg.sender == attestation.attester;
     }
 }
