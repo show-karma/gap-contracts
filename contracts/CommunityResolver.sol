@@ -37,12 +37,12 @@ contract CommunityResolver is
     }
 
     function enlist(bytes32 community, address addr) public virtual {
-        require(isAdmin(community, addr), "Not owner");
+        require(isAdmin(community, msg.sender), "Not owner");
         communityAdmins[community][addr] = 1;
     }
 
     function delist(bytes32 community, address addr) public {
-        require(isAdmin(community, addr), "Not owner");
+        require(isAdmin(community, msg.sender), "Not owner");
         communityAdmins[community][addr] = 0;
     }
 
