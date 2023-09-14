@@ -4,10 +4,29 @@ pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, MultiAttestationRequest, MultiRevocationRequest} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 
-contract Gap is Initializable, OwnableUpgradeable {
+contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     IEAS public eas;
+    mapping(address => uint256) public nonces;
+
+    bytes32 public constant ATTEST_TYPEHASH =
+        keccak256(
+            "Attest(AttestationRequest calldata request,uint256 nonce,uint256 expiry)"
+        );
+
+    bytes32 public constant MULTIATTEST_TYPEHASH =
+        keccak256(
+            "MultiSequentialAttest(AttestationRequestNode[] calldata requestNodes,uint256 nonce,uint256 expiry)"
+        );
+
+    bytes32 public constant MULTIREVOKE_TYPEHASH =
+        keccak256(
+            "MultiRevoke(MultiRevocationRequest[] calldata multiRequests,uint256 nonce,uint256 expiry)"
+        );
 
     struct AttestationRequestNode {
         bytes32 uid;
@@ -15,14 +34,18 @@ contract Gap is Initializable, OwnableUpgradeable {
         uint256 refIdx;
     }
 
+    constructor() EIP712("gap-attestation", "1.0") {
+        //
+    }
+
     function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
         __Ownable_init();
     }
 
-    /// 
+    ///
     /// Verify if msg.sender owns the referenced attestation
-    /// 
+    ///
     function validateCanAttestToRef(bytes32 uid) private view {
         Attestation memory ref = eas.getAttestation(uid);
         require(
@@ -45,9 +68,46 @@ contract Gap is Initializable, OwnableUpgradeable {
         }
     }
 
-    /// 
+    ///
+    /// Performs multi revoke by sig
+    ///
+    function multiRevokeBySig(
+        MultiRevocationRequest[] calldata multiRequests,
+        address attester,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual {
+        require(block.timestamp <= expiry, "Signature expired");
+
+        address signer = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        MULTIREVOKE_TYPEHASH,
+                        multiRequests,
+                        nonce,
+                        expiry
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+        require(
+            signer == attester,
+            "Signer and attester addresses don't match."
+        );
+        require(nonce == nonces[signer]++, "Invalid nonce");
+        this.multiRevoke(multiRequests);
+    }
+
+    ///
     /// Revokes multiple attestations
-    /// 
+    ///
     function multiRevoke(MultiRevocationRequest[] calldata multiRequests)
         external
         payable
@@ -71,18 +131,101 @@ contract Gap is Initializable, OwnableUpgradeable {
         eas.multiRevoke(multiRequests);
     }
 
+    ///
+    /// Performs a single attestation by signature
+    ///
+    function attestBySig(
+        AttestationRequest calldata request,
+        address attester,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual returns (bytes32) {
+        require(block.timestamp <= expiry, "Signature expired");
+
+        address signer = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        ATTEST_TYPEHASH,
+                        request,
+                        nonce,
+                        expiry
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+        require(
+            signer == attester,
+            "Signer and attester addresses don't match."
+        );
+        require(nonce == nonces[signer]++, "Invalid nonce");
+        return this.attest(request);
+    }
+
+    ///
+    /// Perform a single attestation
+    ///
     function attest(AttestationRequest calldata request)
         external
         payable
         returns (bytes32)
     {
-        AttestationRequestData[] memory requestData = new AttestationRequestData[](1);
+        AttestationRequestData[]
+            memory requestData = new AttestationRequestData[](1);
         requestData[0] = request.data;
         validateCanAttestToRefs(requestData);
 
         return eas.attest(request);
     }
 
+    ///
+    /// Performs multi attestations by signature
+    ///
+    function multiAttestBySig(
+        AttestationRequestNode[] calldata requestNodes,
+        address attester,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        require(block.timestamp <= expiry, "Signature expired");
+        address signer = ECDSA.recover(
+            _hashTypedDataV4(
+                keccak256(
+                    abi.encode(
+                        MULTIATTEST_TYPEHASH,
+                        requestNodes,
+                        nonce,
+                        expiry
+                    )
+                )
+            ),
+            v,
+            r,
+            s
+        );
+
+        require(
+            signer == attester,
+            "Signer and attester addresses don't match."
+        );
+        require(nonce == nonces[signer]++, "Invalid nonce");
+        multiSequentialAttest(requestNodes);
+    }
+
+    ///
+    /// Performs a multi attest with relations between attestations and
+    /// assess for attesation permissions based on the parent attestation.
+    /// If refUID is set in any attestation it will be ignored.
+    ///
     function multiSequentialAttest(
         AttestationRequestNode[] calldata requestNodes
     ) public {
