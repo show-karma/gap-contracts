@@ -4,8 +4,8 @@ pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, MultiAttestationRequest, MultiRevocationRequest} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 
@@ -14,19 +14,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     mapping(address => uint256) public nonces;
 
     bytes32 public constant ATTEST_TYPEHASH =
-        keccak256(
-            "Attest(AttestationRequest calldata request,uint256 nonce,uint256 expiry)"
-        );
-
-    bytes32 public constant MULTIATTEST_TYPEHASH =
-        keccak256(
-            "MultiSequentialAttest(AttestationRequestNode[] calldata requestNodes,uint256 nonce,uint256 expiry)"
-        );
-
-    bytes32 public constant MULTIREVOKE_TYPEHASH =
-        keccak256(
-            "MultiRevoke(MultiRevocationRequest[] calldata multiRequests,uint256 nonce,uint256 expiry)"
-        );
+        keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
 
     struct AttestationRequestNode {
         bytes32 uid;
@@ -34,7 +22,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
         uint256 refIdx;
     }
 
-    constructor() EIP712("gap-attestation", "1.0") {
+    constructor() EIP712("gap-attestation", "1") {
         //
     }
 
@@ -68,11 +56,40 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
         }
     }
 
+
+    ///
+    /// 
+    ///
+    function _recoverSignerAddress(
+        string memory payloadHash,
+        uint256 nonce,
+        uint256 expiry,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public view returns (address signer) {
+        bytes32 digest = _hashTypedDataV4(
+            keccak256(
+                abi.encode(
+                    ATTEST_TYPEHASH,
+                    keccak256(bytes(payloadHash)),
+                    nonce,
+                    expiry
+                )
+            )
+        );
+
+        signer = ECDSA.recover(digest, v, r, s);
+
+        return (signer);
+    }
+
     ///
     /// Performs multi revoke by sig
     ///
     function multiRevokeBySig(
         MultiRevocationRequest[] calldata multiRequests,
+        string memory payloadHash,
         address attester,
         uint256 nonce,
         uint256 expiry,
@@ -82,21 +99,8 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     ) external virtual {
         require(block.timestamp <= expiry, "Signature expired");
 
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        MULTIREVOKE_TYPEHASH,
-                        multiRequests,
-                        nonce,
-                        expiry
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
+        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
+
         require(
             signer == attester,
             "Signer and attester addresses don't match."
@@ -136,6 +140,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     ///
     function attestBySig(
         AttestationRequest calldata request,
+        string memory payloadHash,
         address attester,
         uint256 nonce,
         uint256 expiry,
@@ -145,21 +150,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     ) external virtual returns (bytes32) {
         require(block.timestamp <= expiry, "Signature expired");
 
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        ATTEST_TYPEHASH,
-                        request,
-                        nonce,
-                        expiry
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
+        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
         require(
             signer == attester,
             "Signer and attester addresses don't match."
@@ -189,6 +180,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
     ///
     function multiAttestBySig(
         AttestationRequestNode[] calldata requestNodes,
+        string memory payloadHash,
         address attester,
         uint256 nonce,
         uint256 expiry,
@@ -197,22 +189,8 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
         bytes32 s
     ) public virtual {
         require(block.timestamp <= expiry, "Signature expired");
-        address signer = ECDSA.recover(
-            _hashTypedDataV4(
-                keccak256(
-                    abi.encode(
-                        MULTIATTEST_TYPEHASH,
-                        requestNodes,
-                        nonce,
-                        expiry
-                    )
-                )
-            ),
-            v,
-            r,
-            s
-        );
 
+        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
         require(
             signer == attester,
             "Signer and attester addresses don't match."
