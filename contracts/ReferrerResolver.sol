@@ -36,9 +36,9 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     }
 
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
-        return msg.sender == attestation.attester;
+    ) internal pure override returns (bool) {
+        return true;
     }
 }

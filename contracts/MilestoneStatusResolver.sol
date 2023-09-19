@@ -129,6 +129,6 @@ contract MilestoneStatusResolver is
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal view override returns (bool) {
-        return msg.sender == attestation.attester;
+        return true;
     }
 }

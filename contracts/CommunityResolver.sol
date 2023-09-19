@@ -63,6 +63,6 @@ contract CommunityResolver is
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal view override returns (bool) {
-        return canAttest(attestation.attester);
+        return true;
     }
 }
