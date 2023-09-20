@@ -16,6 +16,11 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     struct AttestationRequestNode {
         bytes32 uid;
         MultiAttestationRequest multiRequest;
