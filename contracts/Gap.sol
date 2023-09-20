@@ -4,12 +4,12 @@ pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, MultiAttestationRequest, MultiRevocationRequest} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 
-contract Gap is Initializable, OwnableUpgradeable, EIP712 {
+contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     IEAS public eas;
     mapping(address => uint256) public nonces;
 
@@ -22,12 +22,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
         uint256 refIdx;
     }
 
-    constructor() EIP712("gap-attestation", "1") {
-        //
-    }
-
     function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
+        __EIP712_init('gap-attestation', '1.0');
         __Ownable_init();
     }
 
@@ -56,10 +53,6 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
         }
     }
 
-
-    ///
-    /// 
-    ///
     function _recoverSignerAddress(
         string memory payloadHash,
         uint256 nonce,
@@ -79,7 +72,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712 {
             )
         );
 
-        signer = ECDSA.recover(digest, v, r, s);
+        signer = ECDSAUpgradeable.recover(digest, v, r, s);
 
         return (signer);
     }

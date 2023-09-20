@@ -45,7 +45,6 @@ contract MilestoneStatusResolver is
      */
     function isCommunityAdmin(bytes32 communityUID, address addr)
         private
-        view
         returns (bool)
     {
         return communityResolver.isAdmin(communityUID, addr);
@@ -90,7 +89,7 @@ contract MilestoneStatusResolver is
     function onAttest(
         Attestation calldata attestation,
         uint256 /*value*/
-    ) internal view override returns (bool) {
+    ) internal override returns (bool) {
         require(attestation.refUID != bytes32(0), "Invalid referred milestone");
         bytes32 typeHash = getMilestoneApprovalType(attestation.data);
 
