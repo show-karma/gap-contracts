@@ -47,10 +47,10 @@ contract MilestoneStatusResolver is
      * Calls community resolver whitelist to check if address is
      * a community admin
      */
-    function isCommunityAdmin(bytes32 communityUID, address addr)
-        private
-        returns (bool)
-    {
+    function isCommunityAdmin(
+        bytes32 communityUID,
+        address addr
+    ) private returns (bool) {
         return communityResolver.isAdmin(communityUID, addr);
     }
 
@@ -58,11 +58,9 @@ contract MilestoneStatusResolver is
      * Decodes the milestone schema
      * @return typeHash "approved" | "rejected" | "completed"
      */
-    function getMilestoneApprovalType(bytes memory milestoneData)
-        public
-        view
-        returns (bytes32 typeHash)
-    {
+    function getMilestoneApprovalType(
+        bytes memory milestoneData
+    ) public view returns (bytes32 typeHash) {
         (string memory type_, ) = abi.decode(milestoneData, (string, string));
 
         typeHash = keccak256(abi.encodePacked(type_));
@@ -82,11 +80,9 @@ contract MilestoneStatusResolver is
      * Decodes the grant schema
      * @return the referred community UID
      */
-    function getGrantCommunityUID(bytes memory grantData)
-        public
-        pure
-        returns (bytes32)
-    {
+    function getGrantCommunityUID(
+        bytes memory grantData
+    ) public pure returns (bytes32) {
         return abi.decode(grantData, (bytes32));
     }
 
@@ -129,9 +125,9 @@ contract MilestoneStatusResolver is
     }
 
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
+    ) internal pure override returns (bool) {
         return true;
     }
 }

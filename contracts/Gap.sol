@@ -29,7 +29,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
     function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
-        __EIP712_init('gap-attestation', '1.0');
+        __EIP712_init("gap-attestation", "1.0");
         __Ownable_init();
     }
 
@@ -47,10 +47,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ///
     /// Verify if msg.sender owns the set of attestations
     ///
-    function validateCanAttestToRefs(AttestationRequestData[] memory datas)
-        private
-        view
-    {
+    function validateCanAttestToRefs(
+        AttestationRequestData[] memory datas
+    ) private view {
         for (uint256 j = 0; j < datas.length; j++) {
             if (datas[j].refUID != bytes32(0)) {
                 validateCanAttestToRef(datas[j].refUID);
@@ -97,7 +96,14 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) external virtual {
         require(block.timestamp <= expiry, "Signature expired");
 
-        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
+        address signer = _recoverSignerAddress(
+            payloadHash,
+            nonce,
+            expiry,
+            v,
+            r,
+            s
+        );
 
         require(
             signer == attester,
@@ -110,10 +116,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ///
     /// Revokes multiple attestations
     ///
-    function multiRevoke(MultiRevocationRequest[] calldata multiRequests)
-        external
-        payable
-    {
+    function multiRevoke(
+        MultiRevocationRequest[] calldata multiRequests
+    ) external payable {
         // Checks if every revoke request belongs to the sender
         // The sender can be either the attester or the recipient.
         for (uint256 i = 0; i < multiRequests.length; i++) {
@@ -148,7 +153,14 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) external virtual returns (bytes32) {
         require(block.timestamp <= expiry, "Signature expired");
 
-        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
+        address signer = _recoverSignerAddress(
+            payloadHash,
+            nonce,
+            expiry,
+            v,
+            r,
+            s
+        );
         require(
             signer == attester,
             "Signer and attester addresses don't match."
@@ -160,11 +172,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ///
     /// Perform a single attestation
     ///
-    function attest(AttestationRequest calldata request)
-        external
-        payable
-        returns (bytes32)
-    {
+    function attest(
+        AttestationRequest calldata request
+    ) external payable returns (bytes32) {
         AttestationRequestData[]
             memory requestData = new AttestationRequestData[](1);
         requestData[0] = request.data;
@@ -188,7 +198,14 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) public virtual {
         require(block.timestamp <= expiry, "Signature expired");
 
-        address signer = _recoverSignerAddress(payloadHash, nonce, expiry, v, r, s);
+        address signer = _recoverSignerAddress(
+            payloadHash,
+            nonce,
+            expiry,
+            v,
+            r,
+            s
+        );
         require(
             signer == attester,
             "Signer and attester addresses don't match."

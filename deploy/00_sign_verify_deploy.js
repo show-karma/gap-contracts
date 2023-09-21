@@ -1,5 +1,5 @@
 const {getAddress} = require("@ethersproject/address")
-const {BigNumber} = require("@ethersproject/BigNumber")
+const {BigNumber} = require("@ethersproject/bignumber")
 
 
 module.exports = async ({getNamedAccounts, deployments}) => {

@@ -27,14 +27,11 @@ contract CommunityResolver is
         __Ownable_init();
     }
 
-    function isAdmin(bytes32 community, address addr)
-        public
-        view
-        returns (bool)
-    {
-        return
-            msg.sender == _owner ||
-            communityAdmins[community][addr] == 1;
+    function isAdmin(
+        bytes32 community,
+        address addr
+    ) public view returns (bool) {
+        return msg.sender == _owner || communityAdmins[community][addr] == 1;
     }
 
     function canAttest(address attester) public view returns (bool) {
@@ -65,9 +62,9 @@ contract CommunityResolver is
      * This is an bottom up event, called from the attest contract
      */
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
+    ) internal pure override returns (bool) {
         return true;
     }
 }
