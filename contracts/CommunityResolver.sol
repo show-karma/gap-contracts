@@ -17,9 +17,14 @@ contract CommunityResolver is
 
     address private _owner;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IEAS eas) SchemaResolver(eas) {
-        _owner = msg.sender;
         _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        _owner = msg.sender;
+        __Ownable_init();
     }
 
     function isAdmin(bytes32 community, address addr)
