@@ -10,12 +10,15 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     address private _owner;
-    IEAS private eas;
 
-    constructor(IEAS easRef) SchemaResolver(easRef) {
-        eas = easRef;
-        _owner = msg.sender;
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor(IEAS eas) SchemaResolver(eas) {
         _disableInitializers();
+    }
+
+    function initialize() public initializer {
+        _owner = msg.sender;
+        __Ownable_init();
     }
 
     function onAttest(
@@ -23,7 +26,7 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         uint256 /*value*/
     ) internal view override returns (bool) {
         if (attestation.refUID != bytes32(0)) {
-            Attestation memory ref = eas.getAttestation(attestation.refUID);
+            Attestation memory ref = _eas.getAttestation(attestation.refUID);
             require(ref.uid != bytes32(0), "Referred attestation not valid.");
             require(
                 ref.attester == attestation.attester ||
@@ -36,9 +39,9 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     }
 
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
-        return msg.sender == attestation.attester;
+    ) internal pure override returns (bool) {
+        return true;
     }
 }

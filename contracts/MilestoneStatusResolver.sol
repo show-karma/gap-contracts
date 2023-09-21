@@ -15,20 +15,24 @@ contract MilestoneStatusResolver is
     OwnableUpgradeable
 {
     address private _owner;
-    IEAS private eas;
     ICommunityResolver communityResolver;
 
-    bytes32 private approvedHash = keccak256(abi.encodePacked("approved"));
-    bytes32 private completedHash = keccak256(abi.encodePacked("completed"));
-    bytes32 private rejectedHash = keccak256(abi.encodePacked("rejected"));
+    bytes32 private approvedHash;
+    bytes32 private completedHash;
+    bytes32 private rejectedHash;
 
-    constructor(IEAS easRef, ICommunityResolver resolver)
-        SchemaResolver(easRef)
-    {
-        eas = easRef;
-        communityResolver = resolver;
-        _owner = msg.sender;
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor(IEAS eas) SchemaResolver(eas) {
         _disableInitializers();
+    }
+
+    function initialize(ICommunityResolver resolver) public initializer {
+        _owner = msg.sender;
+        communityResolver = resolver;
+        approvedHash = keccak256(abi.encodePacked("approved"));
+        completedHash = keccak256(abi.encodePacked("completed"));
+        rejectedHash = keccak256(abi.encodePacked("rejected"));
+        __Ownable_init();
     }
 
     /**
@@ -43,11 +47,10 @@ contract MilestoneStatusResolver is
      * Calls community resolver whitelist to check if address is
      * a community admin
      */
-    function isCommunityAdmin(bytes32 communityUID, address addr)
-        private
-        view
-        returns (bool)
-    {
+    function isCommunityAdmin(
+        bytes32 communityUID,
+        address addr
+    ) private returns (bool) {
         return communityResolver.isAdmin(communityUID, addr);
     }
 
@@ -55,11 +58,9 @@ contract MilestoneStatusResolver is
      * Decodes the milestone schema
      * @return typeHash "approved" | "rejected" | "completed"
      */
-    function getMilestoneApprovalType(bytes memory milestoneData)
-        public
-        view
-        returns (bytes32 typeHash)
-    {
+    function getMilestoneApprovalType(
+        bytes memory milestoneData
+    ) public view returns (bytes32 typeHash) {
         (string memory type_, ) = abi.decode(milestoneData, (string, string));
 
         typeHash = keccak256(abi.encodePacked(type_));
@@ -79,29 +80,27 @@ contract MilestoneStatusResolver is
      * Decodes the grant schema
      * @return the referred community UID
      */
-    function getGrantCommunityUID(bytes memory grantData)
-        public
-        pure
-        returns (bytes32)
-    {
+    function getGrantCommunityUID(
+        bytes memory grantData
+    ) public pure returns (bytes32) {
         return abi.decode(grantData, (bytes32));
     }
 
     function onAttest(
         Attestation calldata attestation,
         uint256 /*value*/
-    ) internal view override returns (bool) {
+    ) internal override returns (bool) {
         require(attestation.refUID != bytes32(0), "Invalid referred milestone");
         bytes32 typeHash = getMilestoneApprovalType(attestation.data);
 
-        Attestation memory milestone = eas.getAttestation(attestation.refUID);
+        Attestation memory milestone = _eas.getAttestation(attestation.refUID);
         require(milestone.uid != bytes32(0), "Invalid milestone reference");
         require(
             milestone.refUID != bytes32(0),
             "Invalid grant reference on milestone"
         );
 
-        Attestation memory grant = eas.getAttestation(milestone.refUID);
+        Attestation memory grant = _eas.getAttestation(milestone.refUID);
         require(grant.uid != bytes32(0), "Invalid grant reference");
         bytes32 communityUID = getGrantCommunityUID(grant.data);
 
@@ -119,16 +118,16 @@ contract MilestoneStatusResolver is
             );
         } else if (typeHash == rejectedHash || typeHash == approvedHash) {
             require(communityAdmin, "Not owner");
-            Attestation memory community = eas.getAttestation(communityUID);
+            Attestation memory community = _eas.getAttestation(communityUID);
             require(community.uid != bytes32(0), "Invalid community reference");
         }
         return true;
     }
 
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
-        return msg.sender == attestation.attester;
+    ) internal pure override returns (bool) {
+        return true;
     }
 }
