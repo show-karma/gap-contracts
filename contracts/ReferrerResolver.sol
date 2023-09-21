@@ -30,9 +30,9 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
             require(ref.uid != bytes32(0), "Referred attestation not valid.");
             require(
                 ref.attester == attestation.attester ||
-                    ref.recipient == attestation.attester ||
+                    ref.recipient == attestation.recipient ||
                     _owner == attestation.attester,
-                "Not owner"
+                "ReferrerResolver:Not owner"
             );
         }
         return true;
