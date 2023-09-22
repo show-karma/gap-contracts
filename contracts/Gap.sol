@@ -29,7 +29,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
     function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
-        __EIP712_init("gap-attestation", "1.0");
+        __EIP712_init("gap-attestation", "1");
         __Ownable_init();
     }
 
