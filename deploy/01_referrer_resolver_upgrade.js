@@ -1,32 +1,30 @@
-module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
-    const addresses = {
-      sepolia: {
-        easContract: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e"
-      }
-    }
-    const {deploy} = deployments;
-    const {deployer} = await getNamedAccounts();
-    const {log} = deployments;
+const { contractAddresses } = require('../util/contract-addresses');
 
-    const ReferrerResolver = await ethers.getContractFactory("ReferrerResolver");
-    const currentContract = await deployments.get("ReferrerResolverArtifact");
+module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
 
-    const currentImplAddress = await upgrades.erc1967.getImplementationAddress(currentContract.address);
-    log(
-        `Current ReferrerResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
-    );
+  const { deploy } = deployments;
+  const { deployer } = await getNamedAccounts();
+  const { log } = deployments;
 
-    const contract = await upgrades.upgradeProxy(currentContract.address, ReferrerResolver,
-        {constructorArgs: [addresses[network.name].easContract],unsafeAllow: ['constructor', 'state-variable-immutable']} );
-    log(`Upgrading ...`);
-    await contract.waitForDeployment();
-    log(`Upgraded ...`);
+  const ReferrerResolver = await ethers.getContractFactory("ReferrerResolver");
+  const currentContract = await deployments.get("ReferrerResolverArtifact");
 
-    const newImplAddress = await upgrades.erc1967.getImplementationAddress(contract.target);
+  const currentImplAddress = await upgrades.erc1967.getImplementationAddress(currentContract.address);
+  log(
+    `Current ReferrerResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
+  );
 
-    log(
-        `ReferrerResolver deployed as Proxy at : ${contract.target}, implementation: ${newImplAddress}`
-    );
+  const contract = await upgrades.upgradeProxy(currentContract.address, ReferrerResolver,
+    { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });
+  log(`Upgrading ...`);
+  await contract.waitForDeployment();
+  log(`Upgraded ...`);
+
+  const newImplAddress = await upgrades.erc1967.getImplementationAddress(contract.target);
+
+  log(
+    `ReferrerResolver deployed as Proxy at : ${contract.target}, implementation: ${newImplAddress}`
+  );
 
   const ReferrerResolverArtifact = await deployments.getExtendedArtifact('ReferrerResolver');
 

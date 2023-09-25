@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import {SchemaResolver} from "@ethereum-attestation-service/eas-contracts/contracts/resolver/SchemaResolver.sol";
 import {IEAS} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
@@ -38,52 +38,8 @@ contract MilestoneStatusResolver is
     /**
      * Set the community resolver to check for admin privileges
      */
-    function changeCommunityResolver(ICommunityResolver resolver) external {
-        require(msg.sender == _owner, "Not owner.");
+    function changeCommunityResolver(ICommunityResolver resolver) onlyOwner external {
         communityResolver = resolver;
-    }
-
-    /**
-     * Calls community resolver whitelist to check if address is
-     * a community admin
-     */
-    function isCommunityAdmin(
-        bytes32 communityUID,
-        address addr
-    ) private returns (bool) {
-        return communityResolver.isAdmin(communityUID, addr);
-    }
-
-    /**
-     * Decodes the milestone schema
-     * @return typeHash "approved" | "rejected" | "completed"
-     */
-    function getMilestoneApprovalType(
-        bytes memory milestoneData
-    ) public view returns (bytes32 typeHash) {
-        (string memory type_, ) = abi.decode(milestoneData, (string, string));
-
-        typeHash = keccak256(abi.encodePacked(type_));
-
-        if (
-            typeHash != approvedHash &&
-            typeHash != completedHash &&
-            typeHash != rejectedHash
-        ) {
-            revert("Invalid approval type.");
-        }
-
-        return (typeHash);
-    }
-
-    /**
-     * Decodes the grant schema
-     * @return the referred community UID
-     */
-    function getGrantCommunityUID(
-        bytes memory grantData
-    ) public pure returns (bytes32) {
-        return abi.decode(grantData, (bytes32));
     }
 
     function onAttest(
@@ -129,5 +85,48 @@ contract MilestoneStatusResolver is
         uint256 /*value*/
     ) internal pure override returns (bool) {
         return true;
+    }
+
+    /**
+     * Decodes the grant schema
+     * @return the referred community UID
+     */
+    function getGrantCommunityUID(
+        bytes memory grantData
+    ) private pure returns (bytes32) {
+        return abi.decode(grantData, (bytes32));
+    }
+
+    /**
+     * Decodes the milestone schema
+     * @return typeHash "approved" | "rejected" | "completed"
+     */
+    function getMilestoneApprovalType(
+        bytes memory milestoneData
+    ) private view returns (bytes32 typeHash) {
+        (string memory type_, ) = abi.decode(milestoneData, (string, string));
+
+        typeHash = keccak256(abi.encodePacked(type_));
+
+        if (
+            typeHash != approvedHash &&
+            typeHash != completedHash &&
+            typeHash != rejectedHash
+        ) {
+            revert("Invalid approval type.");
+        }
+
+        return (typeHash);
+    }
+
+    /**
+     * Calls community resolver whitelist to check if address is
+     * a community admin
+     */
+    function isCommunityAdmin(
+        bytes32 communityUID,
+        address addr
+    ) private returns (bool) {
+        return communityResolver.isAdmin(communityUID, addr);
     }
 }

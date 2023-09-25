@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.19;
+pragma solidity ^0.8.19;
 
 import {SchemaResolver} from "@ethereum-attestation-service/eas-contracts/contracts/resolver/SchemaResolver.sol";
 import {IEAS} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
@@ -38,13 +38,13 @@ contract CommunityResolver is
         return attester == _owner;
     }
 
-    function enlist(bytes32 community, address addr) public virtual {
-        require(isAdmin(community, msg.sender), "Not owner");
+    function enlist(bytes32 community, address addr) public {
+        require(isAdmin(community, msg.sender), "CommunityResolver:Not owner");
         communityAdmins[community][addr] = 1;
     }
 
     function delist(bytes32 community, address addr) public {
-        require(isAdmin(community, msg.sender), "Not owner");
+        require(isAdmin(community, msg.sender), "CommunityResolver:Not owner");
         communityAdmins[community][addr] = 0;
     }
 

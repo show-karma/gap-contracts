@@ -5,3 +5,4 @@ hardhat.config.ts
 cache/
 artifacts/*
 artifacts-2/*
+*.swp
