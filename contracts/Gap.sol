@@ -27,9 +27,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
         uint256 refIdx;
     }
 
-    event GapAttested(bytes32 indexed uid, address indexed attester);
-
-    event GapMultiSequentialAttested(bytes32[][] uids, address indexed attester);
+    event GapAttested(address indexed attester);
 
     function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
@@ -183,7 +181,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
             requests[0] = request;
             totalUids[i] = eas.multiAttest(requests);
         }
-        emit GapMultiSequentialAttested(totalUids, attester);
+        emit GapAttested(attester);
     }
 
     ///
@@ -200,7 +198,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
         bytes32 uid = eas.attest(request);
 
-        emit GapAttested(uid, attester);
+        emit GapAttested(attester);
 
         return uid;
     }
