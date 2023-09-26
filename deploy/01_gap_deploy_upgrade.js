@@ -6,7 +6,6 @@ module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
     const Gap = await ethers.getContractFactory("Gap");
     const currentGapContract = await deployments.get("GapArtifact");
 
-    console.log(currentGapContract);
     const currentImplAddress = await upgrades.erc1967.getImplementationAddress(currentGapContract.address);
     log(
         `Current Gap contracts Proxy: ${currentGapContract.address}, implementation: ${currentImplAddress}`
