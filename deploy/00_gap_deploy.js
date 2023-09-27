@@ -8,8 +8,6 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades, network }) =>
   const gap = await upgrades.deployProxy(Gap, [contractAddresses[network.name].easContract]);
   await gap.waitForDeployment();
 
-  console.log(gap);
-
   const currentImplAddress = await upgrades.erc1967.getImplementationAddress(gap.target);
 
   log(
