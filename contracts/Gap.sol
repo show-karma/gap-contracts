@@ -213,7 +213,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
                 );
 
                 require(
-                    target.attester == revoker || target.recipient == revoker,
+                    revoker == owner() ||
+                        target.attester == revoker ||
+                        target.recipient == revoker,
                     "GAP:Not owner."
                 );
             }
@@ -230,7 +232,8 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) private view {
         Attestation memory ref = eas.getAttestation(uid);
         require(
-            ref.attester == msg.sender ||
+            attester == owner() ||
+                ref.attester == msg.sender ||
                 ref.recipient == msg.sender ||
                 ref.attester == attester ||
                 ref.recipient == attester,
@@ -275,5 +278,4 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
         return (signer);
     }
-
 }
