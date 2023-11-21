@@ -8,11 +8,7 @@ import {Attestation} from "@ethereum-attestation-service/eas-contracts/contracts
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract ProjectResolver is
-    SchemaResolver,
-    Initializable,
-    OwnableUpgradeable
-{
+contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     mapping(bytes32 => address) private projectAdmin;
 
     address private _owner;
@@ -31,13 +27,17 @@ contract ProjectResolver is
         bytes32 projectId,
         address addr
     ) public view returns (bool) {
-        return projectAdmin[projectId] == addr;
+        Attestation memory project = _eas.getAttestation(projectId);
+        return
+            (projectAdmin[projectId] == address(0) &&
+                project.recipient == addr) || projectAdmin[projectId] == addr;
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
-        require(projectAdmin[uid] == msg.sender, "ProjectResolver:Not owner");
+        require(isAdmin(uid, msg.sender), "ProjectResolver:Not owner");
         projectAdmin[uid] = newOwner;
     }
+
     /**
      * This is an bottom up event, called from the attest contract
      */
