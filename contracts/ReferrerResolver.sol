@@ -16,8 +16,8 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(
-        IEAS eas,
-        IProjectResolver projectResolver
+        IProjectResolver projectResolver,
+        IEAS eas
     ) SchemaResolver(eas) {
         _projectResolver = projectResolver;
         _disableInitializers();
