@@ -18,6 +18,8 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
+    event TransferOwnership(bytes32 uid, address newOwner);
+
     function initialize() public initializer {
         _owner = msg.sender;
         __Ownable_init();
@@ -36,6 +38,7 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
         require(isAdmin(uid, msg.sender), "ProjectResolver:Not owner");
         projectAdmin[uid] = newOwner;
+        emit TransferOwnership(uid, newOwner);
     }
 
     /**
