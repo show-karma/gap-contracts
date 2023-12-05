@@ -9,9 +9,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
-    mapping(bytes32 => address) private projectAdmin;
+    mapping(bytes32 => address) public projectAdmin;
 
     address private _owner;
+
+    mapping(bytes32 => address) public projectOwner;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IEAS eas) SchemaResolver(eas) {
@@ -29,15 +31,14 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         bytes32 projectId,
         address addr
     ) public view returns (bool) {
-        Attestation memory project = _eas.getAttestation(projectId);
         return
-            (projectAdmin[projectId] == address(0) &&
-                project.recipient == addr) || projectAdmin[projectId] == addr;
+            (projectOwner[projectId] == address(0) &&
+                _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr;
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
         require(isAdmin(uid, msg.sender), "ProjectResolver:Not owner");
-        projectAdmin[uid] = newOwner;
+        projectOwner[uid] = newOwner;
         emit TransferOwnership(uid, newOwner);
     }
 
@@ -48,7 +49,7 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal override returns (bool) {
-        projectAdmin[attestation.uid] = attestation.attester;
+        projectOwner[attestation.uid] = attestation.recipient;
         return true;
     }
 
