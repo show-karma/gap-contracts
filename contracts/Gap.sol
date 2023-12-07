@@ -7,11 +7,15 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
+import {IProjectResolver} from "./IProjectResolver.sol";
 import {IEAS, Attestation, AttestationRequest, AttestationRequestData, MultiAttestationRequest, MultiRevocationRequest} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
+import {ISchemaRegistry, SchemaRecord} from "@ethereum-attestation-service/eas-contracts/contracts/ISchemaRegistry.sol";
 
 contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     IEAS public eas;
     mapping(address => uint256) public nonces;
+
+    IProjectResolver private _projectResolver;
 
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
@@ -29,10 +33,33 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
     event GapAttested(address indexed attester, bytes32 uid);
 
-    function initialize(address easAddr) public initializer {
+    function initialize(
+        address easAddr,
+        address projectResolverAddr
+    ) public initializer {
         eas = IEAS(easAddr);
+        _projectResolver = IProjectResolver(projectResolverAddr);
         __EIP712_init("gap-attestation", "1");
         __Ownable_init();
+    }
+
+    function setProjectResolver(
+        IProjectResolver projectResolver
+    ) public onlyOwner {
+        _projectResolver = projectResolver;
+    }
+
+    function refIsProject(bytes32 refSchemaUid) public view returns (bool) {
+        ISchemaRegistry registry = eas.getSchemaRegistry();
+        SchemaRecord memory schema = registry.getSchema(refSchemaUid);
+        return address(schema.resolver) == address(_projectResolver);
+    }
+
+    function transferProjectOwnership(
+        bytes32 projectUid,
+        address newOwner
+    ) public {
+        _projectResolver.transferProjectOwnership(projectUid, newOwner);
     }
 
     function attest(
@@ -242,7 +269,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) private view {
         Attestation memory ref = eas.getAttestation(uid);
         require(
-            attester == owner() ||
+            (refIsProject(ref.schema) &&
+                _projectResolver.isAdmin(ref.uid, attester)) ||
+                attester == owner() ||
                 ref.attester == msg.sender ||
                 ref.recipient == msg.sender ||
                 ref.attester == attester ||
