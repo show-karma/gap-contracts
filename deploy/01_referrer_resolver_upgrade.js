@@ -1,3 +1,4 @@
+const { network } = require('hardhat');
 const { contractAddresses } = require('../util/contract-addresses');
 
 module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
@@ -15,7 +16,14 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
   );
 
   const contract = await upgrades.upgradeProxy(currentContract.address, ReferrerResolver,
-    { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });
+    {
+      constructorArgs: [
+        contractAddresses[network.name].projectResolver,
+        contractAddresses[network.name].easContract,
+      ],
+      unsafeAllow:
+        ['constructor', 'state-variable-immutable']
+    });
   log(`Upgrading ...`);
   await contract.waitForDeployment();
   log(`Upgraded ...`);

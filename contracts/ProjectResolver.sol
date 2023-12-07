@@ -8,19 +8,19 @@ import {Attestation} from "@ethereum-attestation-service/eas-contracts/contracts
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract ProjectResolver is
-    SchemaResolver,
-    Initializable,
-    OwnableUpgradeable
-{
-    mapping(bytes32 => address) private projectAdmin;
+contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
+    mapping(bytes32 => address) public projectAdmin;
 
     address private _owner;
+
+    mapping(bytes32 => address) public projectOwner;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IEAS eas) SchemaResolver(eas) {
         _disableInitializers();
     }
+
+    event TransferOwnership(bytes32 uid, address newOwner);
 
     function initialize() public initializer {
         _owner = msg.sender;
@@ -31,13 +31,17 @@ contract ProjectResolver is
         bytes32 projectId,
         address addr
     ) public view returns (bool) {
-        return projectAdmin[projectId] == addr;
+        return
+            (projectOwner[projectId] == address(0) &&
+                _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr;
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
-        require(projectAdmin[uid] == msg.sender, "ProjectResolver:Not owner");
-        projectAdmin[uid] = newOwner;
+        require(isAdmin(uid, msg.sender), "ProjectResolver:Not owner");
+        projectOwner[uid] = newOwner;
+        emit TransferOwnership(uid, newOwner);
     }
+
     /**
      * This is an bottom up event, called from the attest contract
      */
@@ -45,7 +49,7 @@ contract ProjectResolver is
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal override returns (bool) {
-        projectAdmin[attestation.uid] = attestation.attester;
+        projectOwner[attestation.uid] = attestation.recipient;
         return true;
     }
 
