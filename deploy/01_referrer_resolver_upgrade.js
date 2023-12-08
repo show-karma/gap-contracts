@@ -15,10 +15,19 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
     `Current ReferrerResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
   );
 
+  /*
+  await upgrades.forceImport(currentContract.address, ReferrerResolver,
+    {
+      constructorArgs: [
+        contractAddresses[network.name].easContract,
+      ],
+      kind: 'transparent'
+    });
+*/
+
   const contract = await upgrades.upgradeProxy(currentContract.address, ReferrerResolver,
     {
       constructorArgs: [
-        contractAddresses[network.name].projectResolver,
         contractAddresses[network.name].easContract,
       ],
       unsafeAllow:

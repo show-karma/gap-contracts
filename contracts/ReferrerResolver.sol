@@ -12,14 +12,10 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     address private _owner;
-    IProjectResolver private _projectResolver;
+    IProjectResolver public _projectResolver;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor(
-        IProjectResolver projectResolver,
-        IEAS eas
-    ) SchemaResolver(eas) {
-        _projectResolver = projectResolver;
+    constructor(IEAS eas) SchemaResolver(eas) {
         _disableInitializers();
     }
 
