@@ -15,7 +15,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     IEAS public eas;
     mapping(address => uint256) public nonces;
 
-    IProjectResolver private _projectResolver;
+    IProjectResolver public _projectResolver;
 
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
@@ -33,20 +33,16 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
 
     event GapAttested(address indexed attester, bytes32 uid);
 
-    function initialize(
-        address easAddr,
-        address projectResolverAddr
-    ) public initializer {
+    function initialize(address easAddr) public initializer {
         eas = IEAS(easAddr);
-        _projectResolver = IProjectResolver(projectResolverAddr);
-        __EIP712_init("gap-attestation", "1");
+        __EIP712_init("gap-attestation", "1.1");
         __Ownable_init();
     }
 
     function setProjectResolver(
         IProjectResolver projectResolver
     ) public onlyOwner {
-        _projectResolver = projectResolver;
+        _projectResolver = IProjectResolver(projectResolver);
     }
 
     function refIsProject(bytes32 refSchemaUid) public view returns (bool) {
