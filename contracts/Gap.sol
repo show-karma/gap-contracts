@@ -20,6 +20,9 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
 
+    bytes32 public _grantSchemaUid;
+    bytes32 public _projectSchemaUid;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -45,10 +48,20 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
         _projectResolver = IProjectResolver(projectResolver);
     }
 
+    function setGrantSchema(bytes32 grantSchemaUid) public onlyOwner {
+        _grantSchemaUid = grantSchemaUid;
+    }
+
+    function setProjectSchema(bytes32 projectSchemaUid) public onlyOwner {
+        _projectSchemaUid = projectSchemaUid;
+    }
+
     function refIsProject(bytes32 refSchemaUid) public view returns (bool) {
-        ISchemaRegistry registry = eas.getSchemaRegistry();
-        SchemaRecord memory schema = registry.getSchema(refSchemaUid);
-        return address(schema.resolver) == address(_projectResolver);
+        return (refSchemaUid == _projectSchemaUid);
+    }
+
+    function refIsGrant(bytes32 refSchemaUid) public view returns (bool) {
+        return (refSchemaUid == _grantSchemaUid);
     }
 
     function transferProjectOwnership(
@@ -265,13 +278,16 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ) private view {
         Attestation memory ref = eas.getAttestation(uid);
         require(
-            (refIsProject(ref.schema) &&
-                _projectResolver.isAdmin(ref.uid, attester)) ||
-                attester == owner() ||
-                ref.attester == msg.sender ||
-                ref.recipient == msg.sender ||
-                ref.attester == attester ||
-                ref.recipient == attester,
+          attester == owner() ||
+          ref.attester == msg.sender ||
+          ref.recipient == msg.sender ||
+          ref.attester == attester ||
+          ref.recipient == attester ||
+          (refIsProject(ref.schema) &&
+              _projectResolver.isAdmin(ref.uid, attester)) ||
+          (refIsGrant(ref.schema) &&
+              refIsProject(eas.getAttestation(ref.refUID).schema) &&
+              _projectResolver.isAdmin(eas.getAttestation(ref.refUID).uid, attester)),
             "GAP:Not owner."
         );
     }
