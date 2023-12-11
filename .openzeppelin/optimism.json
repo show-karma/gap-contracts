@@ -828,6 +828,122 @@
           }
         }
       }
+    },
+    "d07321dd72242283ba703bb4d3689dd87429a9f6213e202bca32d8cf9dbc7ec4": {
+      "address": "0x9E5560f5b084c227Dc40672f48F59DA617eeFA28",
+      "txHash": "0x3d3763db52fa0fbd145715d15d3fb164fcafc573bbc81cd058d08035e5a089b0",
+      "layout": {
+        "solcVersion": "0.8.19",
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:63",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:68"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "52",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_address",
+            "contract": "ReferrerResolver",
+            "src": "contracts/ReferrerResolver.sol:14"
+          },
+          {
+            "label": "_projectResolver",
+            "offset": 0,
+            "slot": "102",
+            "type": "t_contract(IProjectResolver)2715",
+            "contract": "ReferrerResolver",
+            "src": "contracts/ReferrerResolver.sol:15"
+          },
+          {
+            "label": "_grantSchemaUid",
+            "offset": 0,
+            "slot": "103",
+            "type": "t_bytes32",
+            "contract": "ReferrerResolver",
+            "src": "contracts/ReferrerResolver.sol:17"
+          },
+          {
+            "label": "_projectSchemaUid",
+            "offset": 0,
+            "slot": "104",
+            "type": "t_bytes32",
+            "contract": "ReferrerResolver",
+            "src": "contracts/ReferrerResolver.sol:18"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_contract(IProjectResolver)2715": {
+            "label": "contract IProjectResolver",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
     }
   }
 }
