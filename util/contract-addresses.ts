@@ -25,6 +25,11 @@ const contractAddresses: TContractAddresses = {
     easContract: '0x4200000000000000000000000000000000000021',
     projectResolver: '0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141',
   },
+  arbitrum: {
+    communityResolver: '0xD534C4704F82494aBbc901560046fB62Ac63E9C4',
+    easContract: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
+    projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
+  }
 };
 
 export { contractAddresses };

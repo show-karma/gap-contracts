@@ -6,7 +6,7 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades, network }) =>
   const ReferrerResolver = await ethers.getContractFactory("ReferrerResolver");
 
   const contract = await upgrades.deployProxy(ReferrerResolver, [],
-    { constructorArgs: [contractAddresses[network.name].easContract, contractAddresses[network.name].projectResolver], unsafeAllow: ['constructor', 'state-variable-immutable'] });
+    { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });
   await contract.waitForDeployment();
 
   const currentImplAddress = await upgrades.erc1967.getImplementationAddress(contract.target);

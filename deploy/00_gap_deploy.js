@@ -5,7 +5,7 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades, network }) =>
   const { log } = deployments;
   const Gap = await ethers.getContractFactory("Gap");
 
-  const gap = await upgrades.deployProxy(Gap, [contractAddresses[network.name].easContract, contractAddresses[network.name].projectResolver]);
+  const gap = await upgrades.deployProxy(Gap, [contractAddresses[network.name].easContract]);
   await gap.waitForDeployment();
 
   const currentImplAddress = await upgrades.erc1967.getImplementationAddress(gap.target);
