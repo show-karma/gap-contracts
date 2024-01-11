@@ -10,10 +10,10 @@ type TContractAddresses = Record<
 >;
 
 const contractAddresses: TContractAddresses = {
-  optimism_goerli: {
-    communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e',
+  optimism_sepolia: {
+    communityResolver: '0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d',
     easContract: '0x4200000000000000000000000000000000000021',
-    projectResolver: '0x0d63f7820d97C12139d60791BC9996f6Fe2b9C85',// not proxy
+    projectResolver: '0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D',// not proxy
   },
   sepolia: {
     communityResolver: '0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9',

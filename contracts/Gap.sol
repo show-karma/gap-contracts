@@ -13,9 +13,11 @@ import {ISchemaRegistry, SchemaRecord} from "@ethereum-attestation-service/eas-c
 
 contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     IEAS public eas;
+    
+    IProjectResolver public _projectResolver;
+
     mapping(address => uint256) public nonces;
 
-    IProjectResolver public _projectResolver;
 
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
