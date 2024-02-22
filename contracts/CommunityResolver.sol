@@ -52,10 +52,13 @@ contract CommunityResolver is
      * This is an bottom up event, called from the attest contract
      */
     function onAttest(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
-        return canAttest(attestation.attester);
+    ) internal pure override returns (bool) {
+        // return canAttest(attestation.attester);
+
+        // Override checks
+        return true;
     }
 
     /**

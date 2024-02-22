@@ -4,5 +4,7 @@ yarn-error.log
 hardhat.config.ts
 cache/
 artifacts/*
+contracts/artifacts/*
+.deps/*
 artifacts-2/*
 *.swp

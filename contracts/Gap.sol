@@ -201,7 +201,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
                 .multiRequest;
             // If first item reference an attestation, checks if sender
             // is owner or attester of that attestation.
-            validateCanAttestToRefs(request.data, attester);
+            // validateCanAttestToRefs(request.data, attester); // Override to skip checks
             // Updates the upcoming attestation reference uids.
             if (i > 0) {
                 for (uint256 j = 0; j < request.data.length; j++) {
@@ -235,7 +235,7 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
         AttestationRequestData[]
             memory requestData = new AttestationRequestData[](1);
         requestData[0] = request.data;
-        validateCanAttestToRefs(requestData, attester);
+        // validateCanAttestToRefs(requestData, attester); // Override to skip checks
 
         bytes32 uid = eas.attest(request);
 
@@ -274,39 +274,39 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     ///
     /// Verify if msg.sender owns the referenced attestation
     ///
-    function validateCanAttestToRef(
-        bytes32 uid,
-        address attester
-    ) private view {
-        Attestation memory ref = eas.getAttestation(uid);
-        require(
-          attester == owner() ||
-          ref.attester == msg.sender ||
-          ref.recipient == msg.sender ||
-          ref.attester == attester ||
-          ref.recipient == attester ||
-          (refIsProject(ref.schema) &&
-              _projectResolver.isAdmin(ref.uid, attester)) ||
-          (refIsGrant(ref.schema) &&
-              refIsProject(eas.getAttestation(ref.refUID).schema) &&
-              _projectResolver.isAdmin(eas.getAttestation(ref.refUID).uid, attester)),
-            "GAP:Not owner."
-        );
-    }
+    // function validateCanAttestToRef(
+    //     bytes32 uid,
+    //     address attester
+    // ) private view {
+    //     Attestation memory ref = eas.getAttestation(uid);
+    //     require(
+    //       attester == owner() ||
+    //       ref.attester == msg.sender ||
+    //       ref.recipient == msg.sender ||
+    //       ref.attester == attester ||
+    //       ref.recipient == attester ||
+    //       (refIsProject(ref.schema) &&
+    //           _projectResolver.isAdmin(ref.uid, attester)) ||
+    //       (refIsGrant(ref.schema) &&
+    //           refIsProject(eas.getAttestation(ref.refUID).schema) &&
+    //           _projectResolver.isAdmin(eas.getAttestation(ref.refUID).uid, attester)),
+    //         "GAP:Not owner."
+    //     );
+    // }
 
     ///
     /// Verify if msg.sender owns the set of attestations
     ///
-    function validateCanAttestToRefs(
-        AttestationRequestData[] memory datas,
-        address signer
-    ) private view {
-        for (uint256 j = 0; j < datas.length; j++) {
-            if (datas[j].refUID != bytes32(0)) {
-                validateCanAttestToRef(datas[j].refUID, signer);
-            }
-        }
-    }
+    // function validateCanAttestToRefs(
+    //     AttestationRequestData[] memory datas,
+    //     address signer
+    // ) private view {
+    //     for (uint256 j = 0; j < datas.length; j++) {
+    //         if (datas[j].refUID != bytes32(0)) {
+    //             validateCanAttestToRef(datas[j].refUID, signer);
+    //         }
+    //     }
+    // }
 
     function _recoverSignerAddress(
         string memory payloadHash,
