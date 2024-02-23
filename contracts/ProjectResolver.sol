@@ -46,12 +46,10 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
      * This is an bottom up event, called from the attest contract
      */
     function onAttest(
-        Attestation calldata /*attestation*/,
+        Attestation calldata attestation,
         uint256 /*value*/
-    ) internal pure override returns (bool) {
-        // projectOwner[attestation.uid] = attestation.recipient;
-
-        // Override to skip checks
+    ) internal override returns (bool) {
+        projectOwner[attestation.uid] = attestation.recipient;
         return true;
     }
 
