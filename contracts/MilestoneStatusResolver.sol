@@ -46,39 +46,6 @@ contract MilestoneStatusResolver is
         Attestation calldata /*attestation*/,
         uint256 /*value*/
     ) internal pure override returns (bool) {
-        // require(attestation.refUID != bytes32(0), "Invalid referred milestone");
-        // bytes32 typeHash = getMilestoneApprovalType(attestation.data);
-
-        // Attestation memory milestone = _eas.getAttestation(attestation.refUID);
-        // require(milestone.uid != bytes32(0), "Invalid milestone reference");
-        // require(
-        //     milestone.refUID != bytes32(0),
-        //     "Invalid grant reference on milestone"
-        // );
-
-        // Attestation memory grant = _eas.getAttestation(milestone.refUID);
-        // require(grant.uid != bytes32(0), "Invalid grant reference");
-        // bytes32 communityUID = getGrantCommunityUID(grant.data);
-
-        // bool communityAdmin = isCommunityAdmin(
-        //     communityUID,
-        //     attestation.attester
-        // );
-
-        // if (typeHash == completedHash) {
-        //     require(
-        //         milestone.attester == attestation.attester ||
-        //             milestone.recipient == attestation.attester ||
-        //             communityAdmin,
-        //         "Not admin"
-        //     );
-        // } else if (typeHash == rejectedHash || typeHash == approvedHash) {
-        //     require(communityAdmin, "Not owner");
-        //     Attestation memory community = _eas.getAttestation(communityUID);
-        //     require(community.uid != bytes32(0), "Invalid community reference");
-        // }
-
-        // Override to skip checks
         return true;
     }
 
