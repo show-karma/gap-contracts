@@ -50,23 +50,9 @@ contract ReferrerResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     }
 
     function onAttest(
-        Attestation calldata attestation,
+        Attestation calldata /*attestation*/,
         uint256 /*value*/
-    ) internal view override returns (bool) {
-        if (attestation.refUID != bytes32(0)) {
-            Attestation memory ref = _eas.getAttestation(attestation.refUID);
-            require(
-              attestation.attester == owner() ||
-              ref.attester == attestation.attester ||
-              ref.recipient == attestation.recipient ||
-              (refIsProject(ref.schema) &&
-                  _projectResolver.isAdmin(ref.uid, attestation.recipient)) ||
-              (refIsGrant(ref.schema) &&
-                  refIsProject(_eas.getAttestation(ref.refUID).schema) &&
-                  _projectResolver.isAdmin(_eas.getAttestation(ref.refUID).uid, attestation.recipient)),
-                "ReferrerResolver:Not admin."
-            );
-        }
+    ) internal pure override returns (bool) {
         return true;
     }
 
