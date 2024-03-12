@@ -33,7 +33,8 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     ) public view returns (bool) {
         return
             (projectOwner[projectId] == address(0) &&
-                _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr;
+                _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr
+                || addr == _owner;
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
