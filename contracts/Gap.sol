@@ -14,10 +14,9 @@ import {ISchemaRegistry, SchemaRecord} from "@ethereum-attestation-service/eas-c
 contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
     IEAS public eas;
     
-    IProjectResolver public _projectResolver;
-
     mapping(address => uint256) public nonces;
 
+    IProjectResolver public _projectResolver;
 
     bytes32 public constant ATTEST_TYPEHASH =
         keccak256("Attest(string payloadHash,uint256 nonce,uint256 expiry)");
@@ -199,7 +198,6 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
         for (uint256 i = 0; i < requestNodes.length; i++) {
             MultiAttestationRequest memory request = requestNodes[i]
                 .multiRequest;
-            
             // Updates the upcoming attestation reference uids.
             if (i > 0) {
                 for (uint256 j = 0; j < request.data.length; j++) {

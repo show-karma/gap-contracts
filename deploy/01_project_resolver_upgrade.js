@@ -14,7 +14,18 @@ module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
         `Current ProjectResolver contracts Proxy: ${currentProjectResolverContract.address}, implementation: ${currentImplAddress}`
     );
 
-    const projectResolver = await upgrades.upgradeProxy(currentProjectResolverContract.address, ProjectResolver,
+    /*
+    await upgrades.forceImport("0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141", ProjectResolver,
+    {
+      constructorArgs: [
+        contractAddresses[network.name].easContract,
+      ],
+      kind: 'transparent'
+    });
+
+    return
+    */
+    projectResolver = await upgrades.upgradeProxy(currentProjectResolverContract.address, ProjectResolver,
     {
       constructorArgs: [
         contractAddresses[network.name].easContract,

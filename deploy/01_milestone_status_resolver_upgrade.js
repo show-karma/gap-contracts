@@ -7,12 +7,23 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
   const { log } = deployments;
 
   const MilestoneStatusResolver = await ethers.getContractFactory("MilestoneStatusResolver");
+
   const currentContract = await deployments.get("MilestoneStatusResolverArtifact");
 
   const currentImplAddress = await upgrades.erc1967.getImplementationAddress(currentContract.address);
   log(
     `Current MilestoneStatusResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
   );
+
+  /*
+   await upgrades.forceImport('0x953934675b8a3BDf8F1ae0D779E8a7E10C1c2CE6', MilestoneStatusResolver,
+    {
+      constructorArgs: [
+        contractAddresses[network.name].easContract,
+      ],
+      kind: 'transparent'
+    });
+*/
 
   const contract = await upgrades.upgradeProxy(currentContract.address, MilestoneStatusResolver,
     { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });

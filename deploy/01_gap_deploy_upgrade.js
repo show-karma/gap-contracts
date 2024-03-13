@@ -11,6 +11,14 @@ module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
         `Current Gap contracts Proxy: ${currentGapContract.address}, implementation: ${currentImplAddress}`
     );
 
+    /*
+    await upgrades.forceImport("0x6dC1D6b864e8BEf815806f9e4677123496e12026", Gap,
+    {
+      kind: 'transparent'
+    });
+
+    return;
+    */
     const gap = await upgrades.upgradeProxy(currentGapContract.address, Gap);
     log(`Upgrading ...`);
     await gap.waitForDeployment();
