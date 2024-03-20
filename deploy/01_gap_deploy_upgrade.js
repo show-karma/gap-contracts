@@ -17,7 +17,6 @@ module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
       kind: 'transparent'
     });
 
-    return;
     */
     const gap = await upgrades.upgradeProxy(currentGapContract.address, Gap);
     log(`Upgrading ...`);

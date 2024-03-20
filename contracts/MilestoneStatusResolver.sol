@@ -67,28 +67,6 @@ contract MilestoneStatusResolver is
     }
 
     /**
-     * Decodes the milestone schema
-     * @return typeHash "approved" | "rejected" | "completed"
-     */
-    function getMilestoneApprovalType(
-        bytes memory milestoneData
-    ) private view returns (bytes32 typeHash) {
-        (string memory type_, ) = abi.decode(milestoneData, (string, string));
-
-        typeHash = keccak256(abi.encodePacked(type_));
-
-        if (
-            typeHash != approvedHash &&
-            typeHash != completedHash &&
-            typeHash != rejectedHash
-        ) {
-            revert("Invalid approval type.");
-        }
-
-        return (typeHash);
-    }
-
-    /**
      * Calls community resolver whitelist to check if address is
      * a community admin
      */

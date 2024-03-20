@@ -12,7 +12,7 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
 
   const currentImplAddress = await upgrades.erc1967.getImplementationAddress(currentContract.address);
   log(
-    `Current MilestoneStatusResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
+   `Current MilestoneStatusResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
   );
 
   /*
@@ -23,7 +23,7 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
       ],
       kind: 'transparent'
     });
-*/
+    */
 
   const contract = await upgrades.upgradeProxy(currentContract.address, MilestoneStatusResolver,
     { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });

@@ -23,7 +23,6 @@ module.exports = async ({getNamedAccounts, deployments, upgrades}) => {
       kind: 'transparent'
     });
 
-    return
     */
     projectResolver = await upgrades.upgradeProxy(currentProjectResolverContract.address, ProjectResolver,
     {
