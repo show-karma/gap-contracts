@@ -1,7 +1,6 @@
 const { contractAddresses } = require('../util/contract-addresses');
 
 module.exports = async ({ getNamedAccounts, deployments, upgrades, network }) => {
-
   const { log } = deployments;
   const MilestoneStatusResolver = await ethers.getContractFactory("MilestoneStatusResolver");
 

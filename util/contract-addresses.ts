@@ -9,7 +9,7 @@ type TContractAddresses = Record<
   }
 >;
 
-const contractAddresses: TContractAddresses = {
+const contractAddresses = {
   optimism_goerli: {
     communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e',
     easContract: '0x4200000000000000000000000000000000000021',
@@ -34,6 +34,11 @@ const contractAddresses: TContractAddresses = {
     communityResolver: '0xD534C4704F82494aBbc901560046fB62Ac63E9C4',
     easContract: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
     projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
+  },
+  base_sepolia: {
+    communityResolver: '0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1',
+    easContract: '0x4200000000000000000000000000000000000021',
+    projectResolver: '0xC891F8eBA218f5034bf3a472528408BE19E1130E',
   }
 };
 
