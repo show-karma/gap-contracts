@@ -13,7 +13,7 @@ contract CommunityResolver is
     Initializable,
     OwnableUpgradeable
 {
-    mapping(bytes32 => mapping(address => uint8)) private communityAdmins;
+    mapping(bytes32 => mapping(address => uint8)) public communityAdmins;
 
     address private _owner;
 
