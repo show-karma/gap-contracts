@@ -17,6 +17,9 @@ contract CommunityResolver is
 
     address private _owner;
 
+    event CommunityAdminAdded(bytes32 community, address admin);
+    event CommunityAdminRemoved(bytes32 community, address admin);
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IEAS eas) SchemaResolver(eas) {
         _disableInitializers();
@@ -41,11 +44,13 @@ contract CommunityResolver is
     function enlist(bytes32 community, address addr) public {
         require(isAdmin(community, msg.sender), "CommunityResolver:Not owner");
         communityAdmins[community][addr] = 1;
+        emit CommunityAdminAdded(community, addr);
     }
 
     function delist(bytes32 community, address addr) public {
         require(isAdmin(community, msg.sender), "CommunityResolver:Not owner");
         communityAdmins[community][addr] = 0;
+        emit CommunityAdminRemoved(community, addr);
     }
 
     /**

@@ -14,7 +14,7 @@ module.exports = async ({ getNamedAccounts, deployments, upgrades }) => {
   log(
     `Current CommunityResolver contracts Proxy: ${currentContract.address}, implementation: ${currentImplAddress}`
   );
-
+  
   const contract = await upgrades.upgradeProxy(currentContract.address, CommunityResolver,
     { constructorArgs: [contractAddresses[network.name].easContract], unsafeAllow: ['constructor', 'state-variable-immutable'] });
   log(`Upgrading ...`);
