@@ -13,6 +13,8 @@ interface IGAP {
 contract Donations is Initializable, OwnableUpgradeable {
     address private _owner;
     IGAP public gap_contract;
+    // Platform fee percentage in basis points
+    uint256 public platformFeeDividend;
 
     // Define an event
     event DonationMade(
@@ -27,8 +29,12 @@ contract Donations is Initializable, OwnableUpgradeable {
     }
 
     // Initialize function
-    function initialize(address _gap_contract_address) public initializer {
+    function initialize(
+        address _gap_contract_address,
+        uint256 _platformFeeDividend
+    ) public initializer {
         gap_contract = IGAP(_gap_contract_address);
+        platformFeeDividend = _platformFeeDividend;
         _owner = msg.sender;
         __Ownable_init();
     }
@@ -36,6 +42,13 @@ contract Donations is Initializable, OwnableUpgradeable {
     // GAP contract address setter
     function setGapContract(address _gap_contract_address) public onlyOwner {
         gap_contract = IGAP(_gap_contract_address);
+    }
+
+    // Platform fee setter
+    function setPlatformFeeDividend(
+        uint256 _platformFeeDividend
+    ) public onlyOwner {
+        platformFeeDividend = _platformFeeDividend;
     }
 
     // Donate function: Donate to an address and call the attest function on GAP contract with the attestation object
@@ -56,8 +69,8 @@ contract Donations is Initializable, OwnableUpgradeable {
         // Recipient of the donation
         address donee = endorsementRequest.data.recipient;
 
-        // Split the donation - 1% to the owner and 99% to the donee
-        uint256 ownerAmount = (amountInWei * 1) / 100;
+        // Split the donation according to the platformFeeDividend
+        uint256 ownerAmount = (amountInWei * platformFeeDividend) / 10000;
         uint256 doneeAmount = amountInWei - ownerAmount;
 
         // Transfer the amount to the donee

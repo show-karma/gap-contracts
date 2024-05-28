@@ -8,9 +8,11 @@ module.exports = async ({
 }) => {
   const { log } = deployments;
   const Donations = await ethers.getContractFactory("Donations");
+  const platformFeePercentage = 1;
 
   const donations = await upgrades.deployProxy(Donations, [
     contractAddresses[network.name].gapContract,
+    platformFeePercentage * 100, // 1% platform fee in basis points
   ]);
   await donations.waitForDeployment();
 
