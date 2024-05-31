@@ -35,6 +35,7 @@ const contractAddresses = {
     projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
   },
   base_sepolia: {
+    gapContract: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
     communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
     easContract: "0x4200000000000000000000000000000000000021",
     projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
