@@ -10,7 +10,7 @@ type TContractAddresses = Record<
   }
 >;
 
-const contractAddresses: TContractAddresses = {
+const contractAddresses = {
   optimism_sepolia: {
     gapContract: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
     communityResolver: "0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d",
@@ -30,16 +30,14 @@ const contractAddresses: TContractAddresses = {
     projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
   },
   arbitrum: {
-    // gapContract:
     communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
     easContract: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
     projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
   },
-  celo: {
-    // gapContract:
-    communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
-    easContract: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
-    projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+  base_sepolia: {
+    communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
+    easContract: "0x4200000000000000000000000000000000000021",
+    projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
   },
 };
 
