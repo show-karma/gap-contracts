@@ -13,6 +13,8 @@ interface IGAP {
 
 contract Donations is Ownable {
     address public _owner;
+    address public _platform;
+
     IGAP public gap_contract;
     // Platform fee percentage in basis points
     uint256 public platformFeeInBasis;
@@ -45,6 +47,12 @@ contract Donations is Ownable {
         emit PlatformFeeSet(_platformFeeInBasis);
     }
 
+    function setPlatformAddress(
+        address _platformAddress
+    ) public onlyOwner {
+      _platform = _platformAddress;
+    }
+
     // Donate function: Donate to an address and call the attest function on GAP contract with the attestation object
     function donate(
         AttestationRequest calldata endorsementRequest,
@@ -70,12 +78,12 @@ contract Donations is Ownable {
         // Transfer the amount to the donee
         payable(donee).transfer(doneeAmount);
 
-        // Transfer the amount to the owner
-        payable(_owner).transfer(commission);
+        // Transfer the amount to the platform
+        payable(_platform).transfer(commission);
 
         // Emit events
         emit DonationMade(msg.sender, donee, amount);
-        emit CommissionEarned(_owner, commission);
+        emit CommissionEarned(_platform, commission);
 
         // Finally make an endorsement attestation to the recipient
         // Return the attestation uid
