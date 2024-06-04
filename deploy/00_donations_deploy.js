@@ -1,36 +1,23 @@
 const { contractAddresses } = require("../util/contract-addresses");
 
-module.exports = async ({
-  getNamedAccounts,
-  deployments,
-  upgrades,
-  network,
-}) => {
-  const { log } = deployments;
+module.exports = async ({ getNamedAccounts, deployments, ethers, network }) => {
+  const { deploy, log } = deployments;
+  const { deployer } = await getNamedAccounts();
   const Donations = await ethers.getContractFactory("Donations");
   const platformFeePercentage = 1;
 
-  const donations = await upgrades.deployProxy(Donations, [
+  const args = [
     contractAddresses[network.name].gapContract,
     platformFeePercentage * 100, // 1% platform fee in basis points
-  ]);
-  await donations.waitForDeployment();
+  ];
 
-  const currentImplAddress = await upgrades.erc1967.getImplementationAddress(
-    donations.target
-  );
+  const donations = await deploy("Donations", {
+    from: deployer,
+    args: args,
+    log: true,
+  });
 
-  log(
-    `GAP Donations deployed as Proxy at : ${donations.target}, implementation: ${currentImplAddress}`
-  );
-
-  const DonationsArtifact = await deployments.getExtendedArtifact("Donations");
-
-  const factoryAsDeployment = {
-    address: donations.target,
-    ...Donations,
-  };
-  await deployments.save("DonationsArtifact", factoryAsDeployment);
+  log(`GAP Donations deployed at : ${donations.address}`);
 };
 
 module.exports.tags = ["donations"];

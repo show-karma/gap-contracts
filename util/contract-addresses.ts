@@ -40,6 +40,12 @@ const contractAddresses = {
     easContract: "0x4200000000000000000000000000000000000021",
     projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
   },
+  celo: {
+    gapContract: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+    communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+    easContract: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
+    projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+  },
 };
 
 export { contractAddresses };
