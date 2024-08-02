@@ -47,6 +47,19 @@ const contractAddresses = {
     easContract: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
     projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
   },
+  sei_testnet: {
+    gapContract: "0x0bB232f1b137fB55CB6af92c218A1cD63445a2E9",
+    communityResolver: "0x50fb4a65CE924D29b9AC8C508c376a5a21Fda1BC",
+    easContract: "0x4F166ed0A038ECdEEefa7Dc508f15991762974Fe",
+    projectResolver: "0xdA2c62101851365EEdC5A1f7087d92Ffde7345B4",
+  },
+  sei: {
+    gapContract: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+    communityResolver: "0x2b79C5c2Ff877784B2FfF6d6B000801106a94a36",
+    easContract: "0x391020888b0adBA584A67693458b374e4141f838",
+    projectResolver: "0x96f36F25C6bD648d9bdBbd8C3E029CfB2394754d",
+  }
+
 };
 
 export { contractAddresses };
