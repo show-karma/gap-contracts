@@ -5,10 +5,11 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract GitcoinAirdrop is ERC721, Ownable {
+contract AirdropNFT is ERC721, Ownable {
     using Strings for uint256;
 
     uint256 public PLATFORM_FEE;
+    string public contractURI;
     uint256 private _nextTokenId = 1;
 
     struct Project {
@@ -20,7 +21,6 @@ contract GitcoinAirdrop is ERC721, Ownable {
 
     mapping(string => Project) public projects;
     mapping(uint256 => string) public tokenToProjectId;
-    mapping(uint256 => address) public tokenToOwner;
 
     event NFTsMinted(
         string projectId,
@@ -28,16 +28,20 @@ contract GitcoinAirdrop is ERC721, Ownable {
         uint256 tokenIdEnd
     );
     event ProjectDeleted(string projectId);
+    event ContractURIUpdated(string contractURI);
+    event PlatformFeeUpdated(uint256 platformFee);
 
     constructor(
         string memory _name,
         string memory _symbol,
-        uint256 _platformFee
-    ) ERC721(_name, _symbol) Ownable(msg.sender) {
+        uint256 _platformFee,
+        string memory _contractURI
+    ) ERC721(_name, _symbol) {
         PLATFORM_FEE = _platformFee;
+        contractURI = _contractURI;
     }
 
-    function mintProjectNFTs(
+    function mintNFTsToContributors(
         string calldata _projectId,
         string calldata _baseTokenURI,
         address[] calldata contributors
@@ -48,6 +52,7 @@ contract GitcoinAirdrop is ERC721, Ownable {
             "Project already exists"
         );
         require(contributors.length > 0, "No contributors provided");
+        require(bytes(_baseTokenURI).length > 0, "Invalid base URI");
 
         uint256 tokenIdStart = _nextTokenId;
         uint256 tokenIdEnd = tokenIdStart + contributors.length - 1;
@@ -62,7 +67,6 @@ contract GitcoinAirdrop is ERC721, Ownable {
         for (uint256 i = 0; i < contributors.length; i++) {
             uint256 tokenId = tokenIdStart + i;
             _mint(contributors[i], tokenId);
-            tokenToOwner[tokenId] = contributors[i];
             tokenToProjectId[tokenId] = _projectId;
         }
 
@@ -81,17 +85,14 @@ contract GitcoinAirdrop is ERC721, Ownable {
             tokenId <= project.tokenIdEnd;
             tokenId++
         ) {
-            address owner = tokenToOwner[tokenId];
-            if (owner != address(0)) {
+            if (ownerOf(tokenId) != address(0)) {
                 _burn(tokenId);
-                delete tokenToOwner[tokenId];
                 delete tokenToProjectId[tokenId];
             }
         }
 
         // Delete the project
         delete projects[_projectId];
-
         emit ProjectDeleted(_projectId);
     }
 
@@ -107,28 +108,22 @@ contract GitcoinAirdrop is ERC721, Ownable {
         Project storage project = projects[projectId];
         require(bytes(project.id).length > 0, "Project does not exist");
 
-        return
-            string(abi.encodePacked(project.baseTokenURI, tokenId.toString()));
+        return project.baseTokenURI;
+    }
+
+    function setContractURI(string memory _contractURI) external onlyOwner {
+        contractURI = _contractURI;
+        emit ContractURIUpdated(_contractURI);
+    }
+
+    function setPlatformFee(uint256 _platformFee) external onlyOwner {
+        PLATFORM_FEE = _platformFee;
+        emit PlatformFeeUpdated(_platformFee);
     }
 
     function withdrawFees() external onlyOwner {
         uint256 balance = address(this).balance;
         require(balance > 0, "No fees to withdraw");
         payable(owner()).transfer(balance);
-    }
-
-    function _update(
-        address to,
-        uint256 tokenId,
-        address auth
-    ) internal override(ERC721) returns (address) {
-        tokenToOwner[tokenId] = to;
-        return super._update(to, tokenId, auth);
-    }
-
-    function ownerOf(uint256 tokenId) public view override returns (address) {
-        address owner = tokenToOwner[tokenId];
-        require(owner != address(0), "ERC721: invalid token ID");
-        return owner;
     }
 }
