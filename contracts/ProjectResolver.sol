@@ -10,6 +10,8 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     mapping(bytes32 => address) public projectAdmin;
+    mapping(bytes32 => mapping(address => bool)) public projectAdmins;
+
 
     address private _owner;
 
@@ -21,6 +23,8 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     }
 
     event TransferOwnership(bytes32 uid, address newOwner);
+    event AddAdmin(bytes32 indexed uid, address indexed addr);
+    event RemoveAdmin(bytes32 indexed uid, address indexed addr);
 
     function initialize() public initializer {
         _owner = msg.sender;
@@ -35,6 +39,10 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
             (projectOwner[projectId] == address(0) &&
                 _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr
                 || addr == _owner;
+    }
+
+    function isOwner(bytes32 projectId, address addr) public view returns (bool) {
+        return projectOwner[projectId] == addr || addr == _owner;
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
@@ -62,5 +70,28 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         uint256 /*value*/
     ) internal pure override returns (bool) {
         return true;
+    }
+
+    /**
+     * @notice Adds a new admin to a project
+     * @param uid The unique ID of the project
+     * @param addr The address of the new admin
+     */
+    function addAdmin(bytes32 uid, address addr) public {
+        require(isOwner(uid, msg.sender), "ProjectResolver: Not owner");
+        projectAdmins[uid][addr] = true;
+        emit AddAdmin(uid, addr);
+    }
+
+
+    /**
+     * @notice Removes an admin from a project
+     * @param uid The unique ID of the project
+     * @param addr The address of the admin to remove
+     */
+    function removeAdmin(bytes32 uid, address addr) public {
+        require(isOwner(uid, msg.sender), "ProjectResolver: Not owner");
+        delete projectAdmins[uid][addr];
+        emit RemoveAdmin(uid, addr);
     }
 }
