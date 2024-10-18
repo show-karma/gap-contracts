@@ -10,12 +10,12 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     mapping(bytes32 => address) public projectAdmin;
+    address private _owner;
+    mapping(bytes32 => address) public projectOwner;
+
+    // New state variable added at the end
     mapping(bytes32 => mapping(address => bool)) public projectAdmins;
 
-
-    address private _owner;
-
-    mapping(bytes32 => address) public projectOwner;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor(IEAS eas) SchemaResolver(eas) {
@@ -31,7 +31,7 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
-    function isOwnerOrAdmin(
+    function isAdmin(
         bytes32 projectId,
         address addr
     ) public view returns (bool) {

@@ -8,6 +8,11 @@ interface IProjectResolver is ISchemaResolver {
         bytes32 projectId,
         address addr
     ) external view returns (bool);
+    
+    function isOwner(
+        bytes32 projectId,
+        address addr
+    ) external view returns (bool);
 
     function transferProjectOwnership(bytes32 uid, address newOwner) external;
 
