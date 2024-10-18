@@ -31,14 +31,16 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
-    function isAdmin(
+    function isOwnerOrAdmin(
         bytes32 projectId,
         address addr
     ) public view returns (bool) {
         return
             (projectOwner[projectId] == address(0) &&
-                _eas.getAttestation(projectId).recipient == addr) || projectOwner[projectId] == addr
-                || addr == _owner;
+                _eas.getAttestation(projectId).recipient == addr) ||
+            projectOwner[projectId] == addr ||
+            addr == _owner ||
+            projectAdmins[projectId][addr];
     }
 
     function isOwner(bytes32 projectId, address addr) public view returns (bool) {
@@ -46,7 +48,7 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
-        require(isAdmin(uid, msg.sender), "ProjectResolver:Not owner");
+        require(isOwner(uid, msg.sender), "ProjectResolver:Not owner");
         projectOwner[uid] = newOwner;
         emit TransferOwnership(uid, newOwner);
     }
