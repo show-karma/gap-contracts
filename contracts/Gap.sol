@@ -72,6 +72,20 @@ contract Gap is Initializable, OwnableUpgradeable, EIP712Upgradeable {
         _projectResolver.transferProjectOwnership(projectUid, newOwner);
     }
 
+    function addProjectAdmin(
+        bytes32 projectUid,
+        address addr
+    ) public {
+        _projectResolver.addAdmin(projectUid, addr);
+    }
+
+    function removeProjectAdmin(
+        bytes32 projectUid,
+        address addr
+    ) public {
+        _projectResolver.removeAdmin(projectUid, addr);
+    }
+
     function attest(
         AttestationRequest calldata request
     ) external payable returns (bytes32) {
