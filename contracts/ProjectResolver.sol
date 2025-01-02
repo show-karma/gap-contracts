@@ -29,7 +29,7 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
         __Ownable_init();
     }
 
-    function isAdmin(
+    function isOwner(
         bytes32 projectId,
         address addr
     ) public view returns (bool) {
@@ -41,8 +41,8 @@ contract ProjectResolver is SchemaResolver, Initializable, OwnableUpgradeable {
             projectAdmins[projectId][addr];
     }
 
-    function isOwner(bytes32 projectId, address addr) public view returns (bool) {
-        return projectOwner[projectId] == addr || addr == _owner;
+    function isAdmin(bytes32 projectId, address addr) public view returns (bool) {
+        return (isOwner(projectId, addr) || projectAdmins[projectId][addr]);
     }
 
     function transferProjectOwnership(bytes32 uid, address newOwner) public {
