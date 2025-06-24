@@ -41,6 +41,12 @@ const contractAddresses = {
     easContract: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
     projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
   },
+  scroll: {
+    gapContract: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+    communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+    easContract: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
+    projectResolver: "0xAFaE7aA6118D75Fe7FDB3eF8c1623cAaF8C8a653",
+  },
   base_sepolia: {
     gapContract: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
     communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
