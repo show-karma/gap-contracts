@@ -59,6 +59,12 @@ const contractAddresses = {
     easContract: "0x4200000000000000000000000000000000000021",
     projectResolver: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c",
   },
+  polygon: {
+    gapContract: "0x2B2a82637299F9614f4F4833C946cC7b749C6814",
+    communityResolver: "0x710Add6c51327c44d9208aA0Aef2e7011D3678BF",
+    easContract: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
+    projectResolver: "0xA37e6F58289F2c3e650b0cdF3Bb1000889e8d07C",
+  },
   celo: {
     gapContract: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
     communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
